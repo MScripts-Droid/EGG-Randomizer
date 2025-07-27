@@ -1,186 +1,331 @@
--- Services
+--// Services
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
--- UI Setup
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "PetESP_GUI"
+--// GUI Setup
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "PetRandomizerUI"
 screenGui.ResetOnSpawn = false
 
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 250, 0, 240)
-mainFrame.Position = UDim2.new(0.02, 0, 0.2, 0)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 300, 0, 250)
+frame.Position = UDim2.new(0.7, 0, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Name = "MainUI"
+frame.Active = true
+frame.Draggable = true
 
-local title = Instance.new("TextLabel", mainFrame)
-title.Text = "🌟 Pet Randomizer"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+local uiCorner = Instance.new("UICorner", frame)
+uiCorner.CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel", frame)
+title.Text = "Pet Randomizer"
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
 
-local username = Instance.new("TextLabel", mainFrame)
-username.Text = "User: " .. player.Name
-username.Font = Enum.Font.Gotham
-username.TextSize = 14
-username.Size = UDim2.new(1, 0, 0, 20)
-username.Position = UDim2.new(0, 0, 0, 30)
-username.BackgroundTransparency = 1
-username.TextColor3 = Color3.fromRGB(200, 200, 200)
+local nameAndTime = Instance.new("TextLabel", frame)
+nameAndTime.Size = UDim2.new(1, 0, 0, 20)
+nameAndTime.Position = UDim2.new(0, 0, 0, 30)
+nameAndTime.BackgroundTransparency = 1
+nameAndTime.TextColor3 = Color3.fromRGB(200, 200, 200)
+nameAndTime.Font = Enum.Font.Gotham
+nameAndTime.TextSize = 14
 
-local timeLabel = Instance.new("TextLabel", mainFrame)
-timeLabel.Text = "Time: 00:00:00"
-timeLabel.Font = Enum.Font.Gotham
-timeLabel.TextSize = 14
-timeLabel.Size = UDim2.new(1, 0, 0, 20)
-timeLabel.Position = UDim2.new(0, 0, 0, 50)
-timeLabel.BackgroundTransparency = 1
-timeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-
--- ESP Toggle
-local espEnabled = false
-local toggleBtn = Instance.new("TextButton", mainFrame)
-toggleBtn.Text = "ESP: OFF"
-toggleBtn.Size = UDim2.new(1, 0, 0, 30)
-toggleBtn.Position = UDim2.new(0, 0, 0, 80)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleBtn.TextColor3 = Color3.new(1,1,1)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 16
-
-toggleBtn.MouseButton1Click:Connect(function()
-	espEnabled = not espEnabled
-	toggleBtn.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+RunService.RenderStepped:Connect(function()
+	local timeStr = os.date("%H:%M:%S")
+	nameAndTime.Text = player.Name .. " | " .. timeStr
 end)
 
--- Randomize Once Button
-local randBtn = Instance.new("TextButton", mainFrame)
-randBtn.Text = "Randomize ESP"
-randBtn.Size = UDim2.new(1, 0, 0, 30)
-randBtn.Position = UDim2.new(0, 0, 0, 120)
-randBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-randBtn.TextColor3 = Color3.new(1,1,1)
-randBtn.Font = Enum.Font.GothamBold
-randBtn.TextSize = 16
+local espToggle = Instance.new("TextButton", frame)
+espToggle.Text = "ESP: OFF"
+espToggle.Size = UDim2.new(1, -20, 0, 30)
+espToggle.Position = UDim2.new(0, 10, 0, 60)
+espToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+espToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+espToggle.Font = Enum.Font.Gotham
+espToggle.TextSize = 16
+espToggle.AutoButtonColor = false
 
--- Auto Mode Button
-local autoBtn = Instance.new("TextButton", mainFrame)
-autoBtn.Text = "Auto Randomize"
-autoBtn.Size = UDim2.new(1, 0, 0, 30)
-autoBtn.Position = UDim2.new(0, 0, 0, 160)
-autoBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-autoBtn.TextColor3 = Color3.new(1,1,1)
-autoBtn.Font = Enum.Font.GothamBold
-autoBtn.TextSize = 16
+local randomButton = Instance.new("TextButton", frame)
+randomButton.Text = "Randomize Egg"
+randomButton.Size = UDim2.new(1, -20, 0, 30)
+randomButton.Position = UDim2.new(0, 10, 0, 100)
+randomButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+randomButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+randomButton.Font = Enum.Font.Gotham
+randomButton.TextSize = 16
 
--- Got Hit Display
-local gotHitLabel = Instance.new("TextLabel", mainFrame)
-gotHitLabel.Text = ""
-gotHitLabel.Font = Enum.Font.GothamBlack
-gotHitLabel.TextSize = 20
-gotHitLabel.Size = UDim2.new(1, 0, 0, 30)
-gotHitLabel.Position = UDim2.new(0, 0, 0, 200)
-gotHitLabel.BackgroundTransparency = 1
-gotHitLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+local autoToggle = Instance.new("TextButton", frame)
+autoToggle.Text = "Auto: OFF"
+autoToggle.Size = UDim2.new(1, -20, 0, 30)
+autoToggle.Position = UDim2.new(0, 10, 0, 140)
+autoToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+autoToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoToggle.Font = Enum.Font.Gotham
+autoToggle.TextSize = 16
 
--- Pet Pool
-local eggPets = {
-	NightEgg = {
-		{name="Phantom Cat", weight=0.5},
-		{name="Dark Bat", weight=5},
-		{name="Moon Mouse", weight=20},
-		{name="Owl", weight=70}
-	},
-	-- Add other eggs similarly...
+local hitText = Instance.new("TextLabel", frame)
+hitText.Size = UDim2.new(1, 0, 0, 40)
+hitText.Position = UDim2.new(0, 0, 1, -40)
+hitText.BackgroundTransparency = 1
+hitText.TextColor3 = Color3.fromRGB(255, 0, 255)
+hitText.Font = Enum.Font.GothamBold
+hitText.TextSize = 22
+hitText.Text = ""
+hitText.TextScaled = true
+
+local espOn, autoOn = false, false
+local espLabels = {}
+
+local function clearESP()
+	for _, label in ipairs(espLabels) do
+		label:Destroy()
+	end
+	table.clear(espLabels)
+end
+
+local function applyRainbowEffect(textLabel)
+	local gradient = Instance.new("UIGradient", textLabel)
+	gradient.Rotation = 0
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 0, 0)),
+		ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 165, 0)),
+		ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+		ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+		ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 127, 255)),
+		ColorSequenceKeypoint.new(1.0, Color3.fromRGB(139, 0, 255)),
+	})
+	task.spawn(function()
+		while textLabel.Parent and gradient do
+			gradient.Rotation = (gradient.Rotation + 1) % 360
+			task.wait(0.05)
+		end
+	end)
+end
+
+-- Egg data goes here...
+local eggData = {
+	local eggData = {
+    ["Bug Egg"] = {
+        pets = {
+            {"Snail", 40},
+            {"Giant Ant", 30},
+            {"Caterpillar", 25},
+            {"Praying Mantis", 4},
+            {"Dragonfly", 1}
+        },
+        rarityMap = {
+            ["Snail"] = "Common",
+            ["Giant Ant"] = "Rare",
+            ["Caterpillar"] = "Rare",
+            ["Praying Mantis"] = "Epic",
+            ["Dragonfly"] = "Divine"
+        }
+    },
+    ["Bee Egg"] = {
+        pets = {
+            {"Bee", 50},
+            {"Bumblebee", 30},
+            {"Honey Bee", 15},
+            {"Queen Bee", 4},
+            {"Royal Bee", 1}
+        },
+        rarityMap = {
+            ["Bee"] = "Common",
+            ["Bumblebee"] = "Rare",
+            ["Honey Bee"] = "Epic",
+            ["Queen Bee"] = "Mythical",
+            ["Royal Bee"] = "Divine"
+        }
+    },
+    ["Antibee Egg"] = {
+        pets = {
+            {"Larva", 45},
+            {"Soldier Ant", 30},
+            {"Fire Ant", 20},
+            {"Mutant Ant", 4},
+            {"Ant King", 1}
+        },
+        rarityMap = {
+            ["Larva"] = "Common",
+            ["Soldier Ant"] = "Rare",
+            ["Fire Ant"] = "Epic",
+            ["Mutant Ant"] = "Mythical",
+            ["Ant King"] = "Divine"
+        }
+    },
+    ["Zen Egg"] = {
+        pets = {
+            {"Shiba Inu", 40},
+            {"Nihonzaru", 31},
+            {"Tanuki", 20.82},
+            {"Tanchozuru", 4.6},
+            {"Kappa", 3.5},
+            {"Kitsune", 0.08}
+        },
+        rarityMap = {
+            ["Shiba Inu"] = "Common",
+            ["Nihonzaru"] = "Rare",
+            ["Tanuki"] = "Epic",
+            ["Tanchozuru"] = "Mythical",
+            ["Kappa"] = "Mythical",
+            ["Kitsune"] = "Divine"
+        }
+    },
+    ["Oasis Egg"] = {
+        pets = {
+            {"Meerkat", 45},
+            {"Sand Snake", 34.5},
+            {"Axolotl", 15},
+            {"Hyacinth Macaw", 5},
+            {"Fennec Fox", 0.5}
+        },
+        rarityMap = {
+            ["Meerkat"] = "Common",
+            ["Sand Snake"] = "Rare",
+            ["Axolotl"] = "Epic",
+            ["Hyacinth Macaw"] = "Mythical",
+            ["Fennec Fox"] = "Divine"
+        }
+    },
+    ["Paradise Egg"] = {
+        pets = {
+            {"Ostrich", 40},
+            {"Peacock", 30},
+            {"Capybara", 21},
+            {"Scarlet Macaw", 8},
+            {"Mini Octopus", 1}
+        },
+        rarityMap = {
+            ["Ostrich"] = "Common",
+            ["Peacock"] = "Rare",
+            ["Capybara"] = "Epic",
+            ["Scarlet Macaw"] = "Mythical",
+            ["Mini Octopus"] = "Divine"
+        }
+    },
+    ["Dino Egg"] = {
+        pets = {
+            {"Raptor", 35},
+            {"Triceratops", 32.5},
+            {"Stegosaurus", 28},
+            {"Pterodactyl", 3},
+            {"Brontosaurus", 1},
+            {"T-Rex", 0.5}
+        },
+        rarityMap = {
+            ["Raptor"] = "Common",
+            ["Triceratops"] = "Rare",
+            ["Stegosaurus"] = "Epic",
+            ["Pterodactyl"] = "Mythical",
+            ["Brontosaurus"] = "Mythical",
+            ["T-Rex"] = "Divine"
+        }
+    },
+    ["Primal Egg"] = {
+        pets = {
+            {"Parasaurolophus", 35},
+            {"Iguanodon", 32.5},
+            {"Pachycephalosaurus", 28},
+            {"Dilophosaurus", 3},
+            {"Ankylosaurus", 1},
+            {"Spinosaurus", 0.5}
+        },
+        rarityMap = {
+            ["Parasaurolophus"] = "Common",
+            ["Iguanodon"] = "Rare",
+            ["Pachycephalosaurus"] = "Epic",
+            ["Dilophosaurus"] = "Mythical",
+            ["Ankylosaurus"] = "Mythical",
+            ["Spinosaurus"] = "Divine"
+        }
+    },
+} -- SHORTENED FOR NOW. I’ll paste full table next.
+local rarityColors = {
+	["Common"] = Color3.fromRGB(255,255,255),
+	["Rare"] = Color3.fromRGB(170,85,255),
+	["Epic"] = Color3.fromRGB(255,128,0),
+	["Mythical"] = Color3.fromRGB(255,128,0),
+	["Divine"] = Color3.fromRGB(255,0,255)
 }
 
--- 🧠 Helper: Rainbow color animation
-local function getRainbow(t)
-	local r = math.sin(t) * 127 + 128
-	local g = math.sin(t + 2) * 127 + 128
-	local b = math.sin(t + 4) * 127 + 128
-	return Color3.fromRGB(r, g, b)
+local function getEggParts()
+	local parts = {}
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:IsA("BasePart") and eggData[obj.Name] then
+			parts[obj.Name] = obj
+		end
+	end
+	return parts
 end
 
--- 🧠 Get pet name + rarity color
-local function getPetForEgg(eggType)
-	local pool = eggPets[eggType]
-	if not pool then return nil, nil, nil end
+local function pickPet(eggName)
+	local e = eggData[eggName]
+	local roll, acc = math.random()*100, 0
+	for _, pair in ipairs(e.pets) do
+		acc += pair[2]
+		if roll <= acc then return pair[1] end
+	end
+	return e.pets[#e.pets][1]
+end
 
-	local total = 0
-	for _, pet in ipairs(pool) do total += pet.weight end
-	local rand = math.random() * total
-	local acc = 0
-	for _, pet in ipairs(pool) do
-		acc += pet.weight
-		if rand <= acc then
-			local rarity = pet.weight
-			local color = Color3.new(1, 1, 1) -- default
+local function showESP()
+	clearESP()
+	local parts = getEggParts()
+	for eggName, part in pairs(parts) do
+		local pet = pickPet(eggName)
+		local rarity = eggData[eggName].rarityMap[pet]
+		local color = rarityColors[rarity] or Color3.fromRGB(255, 255, 255)
 
-			if rarity <= 0.5 then
-				color = getRainbow(tick())
-			elseif rarity <= 5 then
-				color = Color3.fromRGB(255, 120, 0)
-			elseif rarity <= 20 then
-				color = Color3.fromRGB(180, 100, 255)
-			end
+		local gui = Instance.new("BillboardGui", part)
+		gui.Adornee = part
+		gui.Size = UDim2.new(0, 120, 0, 40)
+		gui.AlwaysOnTop = true
+		local t = Instance.new("TextLabel", gui)
+		t.Size = UDim2.new(1, 0, 1, 0)
+		t.BackgroundTransparency = 1
+		t.Text = pet
+		t.TextColor3 = color
+		t.TextScaled = true
+		t.Font = Enum.Font.GothamBold
+		t.Name = "PetESPLabel"
 
-			return pet.name, color, rarity <= 0.5
+		if rarity == "Divine" then
+			applyRainbowEffect(t)
+			hitText.Text = "Got HIT!!!"
+			task.delay(3, function() hitText.Text = "" end)
 		end
+		table.insert(espLabels, gui)
 	end
 end
 
--- 🔁 Randomize Names
-function randomizeAll()
-	if not espEnabled then return end
-	gotHitLabel.Text = ""
-	for _, obj in pairs(Workspace:GetDescendants()) do
-		if obj:IsA("BillboardGui") and obj:FindFirstChildOfClass("TextLabel") then
-			local label = obj:FindFirstChildOfClass("TextLabel")
-			local eggName = obj.Parent and obj.Parent.Name
-			local petName, color, gotHit = getPetForEgg(eggName)
-			if petName and label then
-				label.Text = petName
-				label.TextColor3 = color
-				label.TextStrokeTransparency = 0
-				if gotHit then
-					gotHitLabel.Text = "🎯 Got Hit!"
-				end
-			end
-		end
-	end
-end
-
--- 🎯 Auto randomize until rarest hit
-local auto = false
-autoBtn.MouseButton1Click:Connect(function()
-	if auto then return end
-	auto = true
-	gotHitLabel.Text = ""
-	while auto do
-		randomizeAll()
-		if gotHitLabel.Text ~= "" then
-			wait(1)
-			break
-		end
-		wait(0.5)
-	end
-	auto = false
+espToggle.MouseButton1Click:Connect(function()
+	espOn = not espOn
+	espToggle.Text = "ESP: " .. (espOn and "ON" or "OFF")
+	if espOn then showESP() else clearESP() end
 end)
 
-randBtn.MouseButton1Click:Connect(randomizeAll)
+randomButton.MouseButton1Click:Connect(function()
+	showESP()
+end)
 
--- ⏰ Clock Update
-spawn(function()
+autoToggle.MouseButton1Click:Connect(function()
+	autoOn = not autoOn
+	autoToggle.Text = "Auto: " .. (autoOn and "ON" or "OFF")
+end)
+
+task.spawn(function()
 	while true do
-		timeLabel.Text = "Time: " .. os.date("%H:%M:%S")
-		wait(1)
+		if autoOn then
+			showESP()
+		end
+		task.wait(1)
 	end
 end)
